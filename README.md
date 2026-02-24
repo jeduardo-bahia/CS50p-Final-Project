@@ -17,12 +17,6 @@ O **EduFin** é um assistente financeiro inteligente desenvolvido em Python com 
 
 ---
 
-## 🖥️ Demonstração
-
-> 📹 [Assistir ao vídeo de demonstração](#)
-
----
-
 ## ⚙️ Funcionalidades
 
 - 📂 Upload de arquivos CSV com transações financeiras
