@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>EduFin Analyzer</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg:        #0a0c10;
+    --surface:   #111318;
+    --border:    #1e2230;
+    --accent1:   #00f5c4;
+    --accent2:   #7c6aff;
+    --accent3:   #ff6b6b;
+    --text:      #e8eaf0;
+    --muted:     #5a6070;
+    --user-bg:   #7c6aff;
+    --bot-bg:    #161920;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Mono', monospace;
+    background: var(--bg);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  /* ── BACKGROUND GRID ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,245,196,.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,245,196,.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── GLOW BLOBS ── */
+  .blob {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: .18;
+    pointer-events: none;
+    z-index: 0;
+    animation: drift 14s ease-in-out infinite alternate;
+  }
+  .blob1 { width: 420px; height: 420px; background: var(--accent2); top: -100px; left: -100px; }
+  .blob2 { width: 320px; height: 320px; background: var(--accent1); bottom: -80px; right: -80px; animation-delay: -7s; }
+
+  @keyframes drift {
+    from { transform: translate(0,0) scale(1); }
+    to   { transform: translate(40px, 30px) scale(1.1); }
+  }
+
+  /* ── DASHBOARD CARD (background) ── */
+  .dashboard {
+    position: relative;
+    z-index: 1;
+    width: 820px;
+    height: 560px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 36px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    box-shadow: 0 40px 80px rgba(0,0,0,.5);
+  }
+
+  .dashboard-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -0.5px;
+  }
+
+  .dashboard-title span {
+    color: var(--accent1);
+  }
+
+  .dash-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+
+  .dash-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .dash-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+  .dash-card.green::before  { background: var(--accent1); }
+  .dash-card.purple::before { background: var(--accent2); }
+  .dash-card.red::before    { background: var(--accent3); }
+
+  .dash-label {
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 8px;
+  }
+
+  .dash-value {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .dash-card.green  .dash-value { color: var(--accent1); }
+  .dash-card.purple .dash-value { color: var(--accent2); }
+  .dash-card.red    .dash-value { color: var(--accent3); }
+
+  .dash-bar-row {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 4px;
+  }
+  .dash-bar-item { display: flex; flex-direction: column; gap: 4px; }
+  .dash-bar-label { font-size: 10px; color: var(--muted); display: flex; justify-content: space-between; }
+  .dash-bar-track { height: 4px; background: var(--border); border-radius: 99px; overflow: hidden; }
+  .dash-bar-fill  { height: 100%; border-radius: 99px; }
+
+  /* ── FLOATING CHAT ── */
+  .chat-widget {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 12px;
+  }
+
+  /* Chat panel */
+  .chat-panel {
+    width: 360px;
+    height: 500px;
+    background: #0e1015;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow:
+      0 0 0 1px rgba(124,106,255,.15),
+      0 30px 60px rgba(0,0,0,.6);
+    transform-origin: bottom right;
+    animation: popIn .25s cubic-bezier(.34,1.56,.64,1) both;
+  }
+
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(.85) translateY(20px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  /* Header */
+  .chat-header {
+    background: linear-gradient(135deg, #13151c, #1a1d28);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .chat-header-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent1);
+    box-shadow: 0 0 8px var(--accent1);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%,100% { opacity: 1; box-shadow: 0 0 8px var(--accent1); }
+    50%      { opacity: .5; box-shadow: 0 0 14px var(--accent1); }
+  }
+
+  .chat-header-info { flex: 1; }
+
+  .chat-header-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .chat-header-sub {
+    font-size: 10px;
+    color: var(--accent1);
+    letter-spacing: .5px;
+  }
+
+  /* Upload area */
+  .upload-area {
+    padding: 8px 12px;
+    background: #0a0c10;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .upload-area input[type="file"] {
+    flex: 1;
+    font-size: 10px;
+    color: var(--muted);
+    background: transparent;
+    border: none;
+    outline: none;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .upload-area input[type="file"]::file-selector-button {
+    background: var(--border);
+    color: var(--muted);
+    border: none;
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 10px;
+    cursor: pointer;
+    font-family: 'DM Mono', monospace;
+    transition: background .2s;
+  }
+
+  .upload-area input[type="file"]::file-selector-button:hover {
+    background: #2a2d3a;
+  }
+
+  .btn-upload {
+    background: var(--accent1);
+    color: #000;
+    border: none;
+    border-radius: 8px;
+    padding: 5px 10px;
+    font-size: 10px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: 'DM Mono', monospace;
+    transition: opacity .2s;
+    white-space: nowrap;
+  }
+
+  .btn-upload:hover { opacity: .85; }
+
+  /* Messages */
+  .messages {
+    flex: 1;
+    padding: 14px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  .message {
+    max-width: 82%;
+    padding: 9px 13px;
+    border-radius: 12px;
+    font-size: 12px;
+    line-height: 1.6;
+    animation: msgIn .2s ease both;
+  }
+
+  @keyframes msgIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .user {
+    background: var(--user-bg);
+    color: #fff;
+    margin-left: auto;
+    border-bottom-right-radius: 3px;
+  }
+
+  .bot {
+    background: var(--bot-bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+    margin-right: auto;
+    border-bottom-left-radius: 3px;
+    white-space: pre-line;
+  }
+
+  /* Input */
+  .input-area {
+    padding: 10px 12px;
+    border-top: 1px solid var(--border);
+    background: #0a0c10;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .input-area input {
+    flex: 1;
+    background: var(--border);
+    border: 1px solid #2a2d3a;
+    border-radius: 10px;
+    padding: 8px 12px;
+    color: var(--text);
+    font-size: 12px;
+    font-family: 'DM Mono', monospace;
+    outline: none;
+    transition: border-color .2s;
+  }
+
+  .input-area input:focus {
+    border-color: var(--accent2);
+  }
+
+  .input-area input::placeholder { color: var(--muted); }
+
+  .btn-send {
+    width: 34px; height: 34px;
+    border-radius: 10px;
+    background: var(--accent2);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity .2s, transform .15s;
+    flex-shrink: 0;
+  }
+
+  .btn-send:hover { opacity: .85; transform: scale(1.05); }
+
+  .btn-send svg { width: 14px; height: 14px; fill: white; }
+
+  /* Toggle button */
+  .chat-toggle {
+    width: 54px; height: 54px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent2), var(--accent1));
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 24px rgba(124,106,255,.4);
+    transition: transform .2s, box-shadow .2s;
+    flex-shrink: 0;
+  }
+
+  .chat-toggle:hover {
+    transform: scale(1.08);
+    box-shadow: 0 12px 30px rgba(124,106,255,.5);
+  }
+
+  .chat-toggle svg { width: 22px; height: 22px; fill: white; }
+
+  /* Avatar */
+  .chat-avatar-wrap {
+    position: absolute;
+    bottom: 580px;
+    right: 14px;
+    width: 80px;
+    pointer-events: none;
+    opacity: .9;
+  }
+
+  .chat-avatar-wrap img { width: 100%; }
+</style>
+</head>
+
+<body>
+
+<!-- Background blobs -->
+<div class="blob blob1"></div>
+<div class="blob blob2"></div>
+
+<!-- Dashboard (fundo decorativo) -->
+<div class="dashboard">
+  <div class="dashboard-title">Edu<span>Fin</span> — Painel Financeiro</div>
+
+  <div class="dash-grid">
+    <div class="dash-card green">
+      <div class="dash-label">Total Entradas</div>
+      <div class="dash-value" id="dash-entradas">—</div>
+    </div>
+    <div class="dash-card red">
+      <div class="dash-label">Total Saídas</div>
+      <div class="dash-value" id="dash-saidas">—</div>
+    </div>
+    <div class="dash-card purple">
+      <div class="dash-label">Saldo</div>
+      <div class="dash-value" id="dash-saldo">—</div>
+    </div>
+  </div>
+
+  <div class="dash-grid" style="grid-template-columns: 1fr 1fr;">
+    <div class="dash-card">
+      <div class="dash-label">Top 5 — Maiores Saídas</div>
+      <div class="dash-bar-row" id="dash-bars-saidas">
+        <div style="color: var(--muted); font-size:11px; margin-top:8px;">Carregue um CSV para ver os dados</div>
+      </div>
+    </div>
+    <div class="dash-card">
+      <div class="dash-label">Top 5 — Maiores Entradas</div>
+      <div class="dash-bar-row" id="dash-bars-entradas">
+        <div style="color: var(--muted); font-size:11px; margin-top:8px;">Carregue um CSV para ver os dados</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Floating Chat Widget -->
+<div class="chat-widget">
+
+  <div class="chat-panel" id="chatPanel">
+
+    <div class="chat-header">
+      <div class="chat-header-dot"></div>
+      <div class="chat-header-info">
+        <div class="chat-header-name">EduFin Assistant</div>
+        <div class="chat-header-sub">análise financeira · online</div>
+      </div>
+      <img src="{{ url_for('static', filename='img/avatar.png') }}"
+           style="width:32px;height:32px;border-radius:50%;object-fit:cover;border:1px solid var(--border);">
+    </div>
+
+    <div class="upload-area">
+      <input type="file" id="csvFile" accept=".csv">
+      <button class="btn-upload" onclick="uploadCSV()">↑ Upload</button>
+    </div>
+
+    <div class="messages" id="messages">
+      <div class="message bot">👋 Olá! Carregue um CSV e me faça perguntas sobre seus dados financeiros.<br><br>Digite <strong>ajuda</strong> para ver o que posso responder.</div>
+    </div>
+
+    <div class="input-area">
+      <input type="text" id="message" placeholder="Digite sua pergunta...">
+      <button class="btn-send" onclick="sendMessage()">
+        <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
+      </button>
+    </div>
+
+  </div>
+
+  <button class="chat-toggle" onclick="toggleChat()" title="Abrir/Fechar chat">
+    <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+  </button>
+
+</div>
+
+<script>
+const input = document.getElementById("message");
+const panel = document.getElementById("chatPanel");
+
+input.addEventListener("keypress", e => {
+  if (e.key === "Enter") { e.preventDefault(); sendMessage(); }
+});
+
+function toggleChat() {
+  if (panel.style.display === "none") {
+    panel.style.display = "flex";
+    panel.style.animation = "popIn .25s cubic-bezier(.34,1.56,.64,1) both";
+  } else {
+    panel.style.display = "none";
+  }
+}
+
+function uploadCSV() {
+  const fileInput = document.getElementById("csvFile");
+  const file = fileInput.files[0];
+  if (!file) { addBotMessage("⚠️ Selecione um arquivo CSV primeiro."); return; }
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  fetch("/upload", { method: "POST", body: formData })
+    .then(r => r.json())
+    .then(() => {
+      addBotMessage("📂 CSV carregado com sucesso! Agora pode fazer suas perguntas.");
+      loadDashboard();
+    })
+    .catch(() => addBotMessage("❌ Erro ao carregar o CSV."));
+}
+
+function sendMessage() {
+  const messages = document.getElementById("messages");
+  const text = input.value.trim();
+  if (!text) return;
+
+  const userDiv = document.createElement("div");
+  userDiv.classList.add("message", "user");
+  userDiv.innerText = text;
+  messages.appendChild(userDiv);
+  messages.scrollTop = messages.scrollHeight;
+
+  fetch("/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message: text })
+  })
+  .then(r => r.json())
+  .then(data => { addBotMessage(data.response); });
+
+  input.value = "";
+}
+
+function addBotMessage(text) {
+  const messages = document.getElementById("messages");
+  const div = document.createElement("div");
+  div.classList.add("message", "bot");
+  div.innerText = text;
+  messages.appendChild(div);
+  messages.scrollTop = messages.scrollHeight;
+}
+
+function loadDashboard() {
+  // Totais gerais
+  const perguntas = [
+    { key: "entradas", msg: "total entrada" },
+    { key: "saidas",   msg: "total saida"  },
+    { key: "saldo",    msg: "saldo"        },
+  ];
+
+  perguntas.forEach(p => {
+    fetch("/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: p.msg })
+    })
+    .then(r => r.json())
+    .then(data => {
+      const val = data.response.split(":")[1]?.trim() || "—";
+      const el = document.getElementById("dash-" + p.key);
+      if (el) { el.innerText = val; el.style.animation = "msgIn .4s ease both"; }
+    });
+  });
+
+  // Top 5 categorias de saída e entrada
+  fetch("/top_categories")
+    .then(r => r.json())
+    .then(data => {
+      const colorsRed   = ["var(--accent3)", "#ff9a8b", "#ffb3a7", "#ffc9c0", "#ffddd8"];
+      const colorsGreen = ["var(--accent1)", "#5fffd9", "#8fffe6", "#b8fff0", "#d6fff8"];
+
+      function renderBars(containerId, items, colors) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = "";
+        if (!items || items.length === 0) {
+          container.innerHTML = '<div style="color:var(--muted);font-size:11px;">Sem dados</div>';
+          return;
+        }
+        const maxVal = items[0][1];
+        items.forEach((item, i) => {
+          const pct = maxVal > 0 ? Math.round((item[1] / maxVal) * 90) + 10 : 10;
+          container.innerHTML += `
+            <div class="dash-bar-item">
+              <div class="dash-bar-label">
+                <span>${item[0]}</span>
+                <span style="color:var(--muted)">${item[2]}</span>
+              </div>
+              <div class="dash-bar-track">
+                <div class="dash-bar-fill" style="width:${pct}%;background:${colors[i]};transition:width .6s ease ${i*0.1}s;"></div>
+              </div>
+            </div>`;
+        });
+      }
+
+      renderBars("dash-bars-saidas",   data.top_saidas,   colorsRed);
+      renderBars("dash-bars-entradas", data.top_entradas, colorsGreen);
+    });
+}
+</script>
+</body>
+</html>

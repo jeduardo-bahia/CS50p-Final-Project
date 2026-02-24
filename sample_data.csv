@@ -1,0 +1,6 @@
+data,tipo,categoria,valor
+2025-01-01,entrada,Vendas,15000
+2025-01-02,saida,Salarios,8000
+2025-01-03,saida,Marketing,2000
+2025-01-04,saida,Aluguel,3000
+2025-01-05,entrada,Servicos,5000
