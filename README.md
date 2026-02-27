@@ -5,6 +5,8 @@
 ![CS50P](https://img.shields.io/badge/CS50P-Final%20Project-red?style=flat&logo=edx&logoColor=white)
 ![Status](https://img.shields.io/badge/Status-Complete-brightgreen?style=flat)
 
+![Banner](static/img/banner_finsight.png)
+
 # FinSight
 
 ### CS50P Final Project — by Jhonanthan Bahia
