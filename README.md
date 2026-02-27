@@ -5,139 +5,115 @@
 ![CS50P](https://img.shields.io/badge/CS50P-Final%20Project-red?style=flat&logo=edx&logoColor=white)
 ![Status](https://img.shields.io/badge/Status-Complete-brightgreen?style=flat)
 
-# 💰 EduFin — Analisador Financeiro
+# FinSight
 
-> *Sistema de chat financeiro que lê arquivos CSV e responde perguntas em linguagem natural.*
-
----
-
-## 📌 Sobre o Projeto
-
-O **EduFin** é um assistente financeiro inteligente desenvolvido em Python com Flask. Ele permite que o usuário carregue um arquivo CSV com transações financeiras e faça perguntas em português para obter análises detalhadas dos dados — sem precisar de fórmulas ou planilhas complexas.
+### CS50P Final Project — by Jhonanthan Bahia
 
 ---
 
-## ⚙️ Funcionalidades
+## 📌 Description / Descrição
 
-- 📂 Upload de arquivos CSV com transações financeiras
-- 💬 Chat em linguagem natural para consulta dos dados
-- 📊 Dashboard com resumo financeiro atualizado automaticamente
-- 🏆 Top 5 categorias com maiores entradas e saídas
-- 🔍 Consulta por categoria, data e tipo de transação
-- 💲 Valores formatados em Real Brasileiro (R$)
+**English:**
+FinSight is a web-based financial chat assistant that allows users to upload a CSV file containing financial transactions and ask questions about their data in natural language (Portuguese). The application analyzes income, expenses, balances, and categories, returning formatted responses through a floating chat interface.
 
----
-
-## 💬 Perguntas Suportadas
-
-| Pergunta | Exemplo |
-|---|---|
-| Total de entradas | `total de entradas` |
-| Total de saídas | `total de saidas` |
-| Saldo atual | `saldo` |
-| Maior gasto | `maior gasto` |
-| Categoria com maior saída | `qual categoria teve maior saida` |
-| Categoria com menor saída | `qual categoria teve menor saida` |
-| Categoria com maior entrada | `qual categoria teve maior entrada` |
-| Categoria com menor entrada | `qual categoria teve menor entrada` |
-| Total por categoria | `total de saida em logística` |
-| Data com maior entrada | `maior entrada por data` |
-| Data com maior saída | `maior saida por data` |
-| Categorias disponíveis | `ajuda` |
+**Português:**
+O FinSight é um assistente financeiro via chat que permite ao usuário carregar um arquivo CSV com transações financeiras e fazer perguntas sobre os dados em linguagem natural. A aplicação analisa entradas, saídas, saldos e categorias, retornando respostas formatadas através de uma interface de chat flutuante.
 
 ---
 
-## 🗂️ Estrutura do Projeto
+## 📁 Project Structure / Estrutura do Projeto
 
 ```
-INTENT_ENGINE/
+FINSIGHT/
 ├── static/
 │   └── img/
 │       └── avatar.png
 ├── templates/
-│   └── index.html          # Interface do chat
-├── brain.py                # Lógica e motor de intenções
-├── project.py              # Aplicação Flask principal
-├── test_project.py         # Testes automatizados com pytest
-├── requirements.txt        # Dependências
-└── sample_data.csv         # CSV de exemplo
+│   └── index.html        # Chat interface / Interface do chat
+├── brain.py              # Logic and intent engine / Lógica e motor de intenções
+├── project.py            # Main Flask application / Aplicação Flask principal
+├── test_project.py       # Pytest tests / Testes com pytest
+├── requirements.txt      # Dependencies / Dependências
+└── sample_data.csv       # Sample CSV for testing / CSV de exemplo
 ```
 
 ---
 
-## 🚀 Como Executar
+## ⚙️ How It Works / Como Funciona
 
-**1. Clone o repositório**
-```bash
-git clone https://github.com/jeduardo-bahia/CS50p-Final-Project.git
-cd CS50p-Final-Project
-```
+**English:**
+1. The user uploads a `.csv` file with columns: `data`, `tipo`, `categoria`, `valor`
+2. The user types a question in the chat (e.g. *"total de entradas"*, *"saldo"*, *"maior gasto"*)
+3. `brain.py` detects the intent of the message and generates a response based on the loaded data
+4. The response is displayed in the floating chat interface
 
-**2. Instale as dependências**
+**Português:**
+1. O usuário carrega um arquivo `.csv` com as colunas: `data`, `tipo`, `categoria`, `valor`
+2. O usuário digita uma pergunta no chat (ex: *"total de entradas"*, *"saldo"*, *"maior gasto"*)
+3. O `brain.py` detecta a intenção da mensagem e gera uma resposta com base nos dados carregados
+4. A resposta é exibida na interface de chat flutuante
+
+---
+
+## 💬 Supported Questions / Perguntas Suportadas
+
+| Question / Pergunta | Example / Exemplo |
+|---|---|
+| Total income | `total de entradas` |
+| Total expenses | `total de saidas` |
+| Current balance | `saldo` |
+| Highest expense category | `maior gasto` |
+| Total by category | `total de saida em logística` |
+| Highest income date | `maior entrada por data` |
+| Highest expense date | `maior saida por data` |
+| Available categories | `ajuda` |
+
+---
+
+## ▶️ How to Run / Como Executar
+
 ```bash
+# Install dependencies / Instalar dependências
 pip install -r requirements.txt
-```
 
-**3. Execute o projeto**
-```bash
+# Run the application / Executar a aplicação
 python project.py
 ```
 
-O navegador abrirá automaticamente em `http://127.0.0.1:5000` 🎉
+The browser will open automatically at `http://127.0.0.1:5000`
 
 ---
 
-## 🧪 Testes
+## 🧪 Running Tests / Executando os Testes
 
 ```bash
 pytest test_project.py
 ```
 
-Funções testadas:
-- `calculate_summary` — calcula o total de entradas e saídas
-- `get_highest_entry_date` — encontra a data com maior entrada
-- `get_available_categories` — lista todas as categorias do CSV
+Tests cover / Os testes cobrem:
+- `calculate_summary` — calculates total income and expenses
+- `get_highest_entry_date` — finds the date with the highest income
+- `get_available_categories` — lists all categories in the data
 
 ---
 
-## 📦 Dependências
+## 📦 Dependencies / Dependências
 
-```
-flask
-pytest
-```
+- `flask` — web framework
+- `pytest` — testing framework
 
 ---
 
-## 🛠️ Tecnologias Utilizadas
+## 🎯 Design Decisions / Decisões de Design
 
-| Tecnologia | Uso |
-|---|---|
-| Python | Linguagem principal |
-| Flask | Framework web |
-| CSV Module | Leitura e parsing de arquivos |
-| HTML5 / CSS3 | Estrutura e estilo |
-| JavaScript | Interações e dashboard |
-| Pytest | Testes automatizados |
-| Google Fonts | Tipografia (Syne + DM Mono) |
+**English:**
+- `brain.py` was kept separate from `project.py` to isolate the logic from the web layer, making it easier to test and maintain.
+- Intent detection uses simple keyword matching, which is efficient and easy to extend.
+- A floating chat widget was chosen over a full-page layout to allow the dashboard to remain visible while chatting.
+- The CSV format was kept simple (no database) to make the project accessible and easy to run locally.
 
----
-
-## 🎯 Decisões de Design
-
-- O `brain.py` foi separado do `project.py` para isolar a lógica da camada web, facilitando os testes e a manutenção.
-- A detecção de intenção usa correspondência de palavras-chave, sendo simples, eficiente e fácil de expandir.
-- O chat flutuante foi escolhido para que o dashboard permaneça visível durante a conversa.
-- O formato CSV foi mantido simples (sem banco de dados) para facilitar o uso local.
-
----
-
-## 👨‍💻 Autor
-
-**Jhonanthan E. C. Bahia** — CS50P Final Project — 2026
-
-[![GitHub](https://img.shields.io/badge/GitHub-jeduardo--bahia-181717?style=flat&logo=github)](https://github.com/jeduardo-bahia)
-
----
-
-> *"Stop drowning in spreadsheets. Just ask EduFin."*
+**Português:**
+- O `brain.py` foi mantido separado do `project.py` para isolar a lógica da camada web, facilitando os testes e a manutenção.
+- A detecção de intenção usa correspondência simples de palavras-chave, sendo eficiente e fácil de expandir.
+- Um chat flutuante foi escolhido em vez de uma página inteira para permitir que o dashboard permaneça visível durante a conversa.
+- O formato CSV foi mantido simples (sem banco de dados) para tornar o projeto acessível e fácil de executar localmente.
